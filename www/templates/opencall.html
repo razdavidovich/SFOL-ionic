@@ -1,0 +1,38 @@
+﻿<ion-view title="My Open Calls">
+    <ion-nav-buttons side="left">
+        <button menu-toggle="left" class="button button-icon icon ion-navicon"></button>
+    </ion-nav-buttons>
+
+    <ion-content class="has-header">
+
+
+        <ion-list>
+            <div collection-repeat="callist in calllists" divider-collection-repeat>
+
+                <ion-item href="#/app/updatecall/{{callist.id}}">
+                  <div class="item-icon-left">
+                    <div  ng-if="callist.downtime == 'true'">
+                        <i class="icon ion-android-alert balanced"></i>
+                    </div>
+                    <div ng-if="callist.downtime == 'false'">
+                  <i class="icon ion-android-alert assertive"></i>
+                  </div>
+                <h2> {{callist.name}}</h2>
+                <p>{{callist.details}}</p>
+                   </div>
+
+
+                </ion-item>
+            </div>
+        </ion-list>
+    </ion-content>
+
+
+    <ion-nav-buttons side="right">
+        <a class="button button-icon icon ion-plus" ng-click="AddCall('add')"></a>
+        <!--Basic: auto-select the icon based on the platform -->
+
+        <!--<ion-icon name="add"></ion-icon>-->
+
+    </ion-nav-buttons>
+</ion-view>

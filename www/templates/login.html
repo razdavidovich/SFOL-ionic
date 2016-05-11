@@ -1,0 +1,36 @@
+﻿
+ <ion-view title="Sign-In" ng-controller="LoginCtrl">
+    <ion-content>
+
+
+     <div class="row">
+    <div class="col">
+        <div class="text-center">
+          <img src='img/sfologosmall.png'/>
+        </div>
+    </div>
+</div>
+        <div class="padding">
+            <label class="item item-input">
+                <span class="input-label">SFOL User name</span>
+                <input type="text" ng-model="user.username">
+            </label>
+       </div>
+       <div class="padding">
+         <label class="item item-input">
+          <span class="input-label">Password</span>
+          <input type="password" ng-model="user.password">
+         </label>
+        </div>
+
+        <div class="padding">
+            <button nav-clear class="button button-block button-positive" ng-click="LogIn(user)">
+                Sign-In
+            </button>
+
+        </div>
+
+
+
+    </ion-content>
+</ion-view>
