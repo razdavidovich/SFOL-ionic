@@ -1,36 +1,52 @@
 ﻿
- <ion-view title="Sign-In" ng-controller="LoginCtrl">
-    <ion-content>
+ <ion-view title="Sign-In" >
+   <ion-content >
 
-
-     <div class="row">
-    <div class="col">
-        <div class="text-center">
-          <img src='img/sfologosmall.png'/>
-        </div>
-    </div>
-</div>
-        <div class="padding">
-            <label class="item item-input">
-                <span class="input-label">SFOL User name</span>
-                <input type="text" ng-model="user.username">
-            </label>
+       <div class="row">
+        <div class="col">
+              <div class="text-center">
+                 <img src='img/sfologosmall.png'/>
+              </div>
        </div>
-       <div class="padding">
-         <label class="item item-input">
-          <span class="input-label">Password</span>
-          <input type="password" ng-model="user.password">
-         </label>
-        </div>
+       </div>
+
+      <form name="authorizationForm" novalidate="" ng-submit="LogIn(authorizationForm)">
 
         <div class="padding">
-            <button nav-clear class="button button-block button-positive" ng-click="LogIn(user)">
-                Sign-In
-            </button>
+
+          <label class="item item-input" ng-class="{ 'has-errors' : authorizationForm.username.$invalid  && authorizationForm.$submitted,
+          'no-errors' : authorizationForm.username.$valid && authorizationForm.$submitted}">
+            <span class="input-label">SFOL User name</span>
+            <input type="text" name="username" ng-model="authorization.username"  required>
+          </label>
+
+          <div class="error-container last-error-container"
+           ng-show="authorizationForm.username.$error&& authorizationForm.$submitted" ng-messages="authorizationForm.username.$error">
+            <div ng-messages-include="templates/error-list.html"></div>
+          </div>
+        </div>
+          <div class="padding">
+          <label class="item item-input" ng-class="{ 'has-errors' : authorizationForm.password.$invalid
+          && authorizationForm.$submitted, 'no-errors' : authorizationForm.password.$valid  && authorizationForm.$submitted}">
+            <span class="input-label">Password</span>
+            <input type="password" name="password" ng-model="authorization.password"  required>
+          </label>
+
+          <div class="error-container last-error-container"
+           ng-show="authorizationForm.password.$error && authorizationForm.$submitted"
+           ng-messages="authorizationForm.password.$error">
+            <div ng-messages-include="templates/error-list.html"></div>
+          </div>
 
         </div>
+          <div class="padding">
+        <button class="button button-full button-positive" type="submit">
+          Sign In
+        </button>
+      </div>
 
-
+      </form>
 
     </ion-content>
+
 </ion-view>

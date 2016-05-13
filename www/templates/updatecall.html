@@ -35,11 +35,8 @@
 <div class="input-label">
 Owner
 </div>
-<select>
-<option selected>Me</option>
-<option >Owner2</option>
-<option>Owner3</option>
-</select>
+<select ng-model="Owner">
+<option ng-repeat="owner in ownerlist" value="{{owner.OwnerLoginID}}">{{owner.OwnerLogin}}</option></select>
 </label>
 
 </div>
@@ -49,11 +46,8 @@ Owner
   <div class="input-label">
   State
   </div>
-  <select>
-  <option selected>In Progress</option>
-  <option >State1</option>
-  <option>State2</option>
-  </select>
+  <select ng-model="Status">
+  <option ng-repeat="status in statuslist" value="{{status.FaultStatusID}}">{{status.FaultStatus}}</option></select>
   </label>
 
 </div>

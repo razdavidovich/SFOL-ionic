@@ -8,13 +8,10 @@
 <div class="input-label">
 Department
 </div>
-<select>
-<option>Department1</option>
-<option >Department2</option>
-<option>Department3</option>
+<select ng-model="department" ng-change="changedepartment(department)">
+<option ng-repeat="department in departmentlist" value="{{department.DepartmentID}}">{{department.Department}}</option>
 </select>
 </label>
-
 </div>
 
 <div class="padding">
@@ -23,10 +20,8 @@ Department
 <div class="input-label">
 Asset*
 </div>
-<select>
-<option>Asset1</option>
-<option >Asset2</option>
-<option>Asset3</option>
+<select ng-model="Asset">
+<option ng-repeat="asset in Assetslist" value="{{asset.AssetID}}">{{asset.Asset}}</option>
 </select>
 </label>
 
@@ -39,10 +34,8 @@ Asset*
 <div class="input-label">
 Fault*
 </div>
-<select>
-<option>Fault1</option>
-<option >Fault2</option>
-<option>Fault3</option>
+<select  ng-model="Fault">
+<option ng-repeat="fault in faultlist" value="{{fault.CommonFaultID}}">{{fault.CommonFault}}</option>
 </select>
 </label>
 
@@ -54,11 +47,8 @@ Fault*
 <div class="input-label">
 Owner
 </div>
-<select>
-<option>Owner1</option>
-<option >Owner2</option>
-<option>Owner3</option>
-</select>
+<select ng-model="Owner">
+<option ng-repeat="owner in ownerlist" value="{{owner.OwnerLoginID}}">{{owner.OwnerLogin}}</option></select>
 </label>
 
 </div>
