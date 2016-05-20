@@ -8,7 +8,7 @@
 <div class="input-label">
 Department
 </div>
-<select ng-model="department" ng-change="changedepartment(department)">
+<select ng-model="objcall.DepartmentID" ng-change="changedepartment(objcall.DepartmentID)">
 <option ng-repeat="department in departmentlist" value="{{department.DepartmentID}}">{{department.Department}}</option>
 </select>
 </label>
@@ -20,7 +20,7 @@ Department
 <div class="input-label">
 Asset*
 </div>
-<select ng-model="Asset">
+<select ng-model="objcall.AssetID">
 <option ng-repeat="asset in Assetslist" value="{{asset.AssetID}}">{{asset.Asset}}</option>
 </select>
 </label>
@@ -34,7 +34,7 @@ Asset*
 <div class="input-label">
 Fault*
 </div>
-<select  ng-model="Fault">
+<select  ng-model="objcall.CommonFaultID">
 <option ng-repeat="fault in faultlist" value="{{fault.CommonFaultID}}">{{fault.CommonFault}}</option>
 </select>
 </label>
@@ -47,7 +47,7 @@ Fault*
 <div class="input-label">
 Owner
 </div>
-<select ng-model="Owner">
+<select ng-model="objcall.OwnerLoginID">
 <option ng-repeat="owner in ownerlist" value="{{owner.OwnerLoginID}}">{{owner.OwnerLogin}}</option></select>
 </label>
 
@@ -56,16 +56,16 @@ Owner
 <div class="padding">
 
 <label class="item item-input">
-   <textarea placeholder="Text*"></textarea>
+   <textarea placeholder="Text*" ng-model="objcall.Fault"></textarea>
  </label>
 </div>
 
 <div class="padding">
-   <ion-checkbox  ng-model="downtime" ng-checked="downtime" class="checkbox-balanced" >Causes Downtime</ion-checkbox>
+   <ion-checkbox  ng-model="objcall.IsDowntime" ng-checked="IsDowntime" class="checkbox-balanced" >Causes Downtime</ion-checkbox>
 
  </div>
  <div class="padding">
-     <button nav-clear class="button button-block button-positive">
+     <button nav-clear class="button button-block button-positive" ng-click="addcalltoservice(objcall)">
          Save
      </button>
 

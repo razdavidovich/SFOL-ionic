@@ -66,6 +66,7 @@ angular.module('starter', ['ionic','ngMessages'])
 
          })
          .state('app.newcall', {
+             cache: false,
              url: "/newcall",
              views: {
                  'menuContent': {
@@ -80,6 +81,7 @@ angular.module('starter', ['ionic','ngMessages'])
 
 
       .state('login', {
+          cache: false,
           url: "/login",
           templateUrl: "templates/login.html",
           controller: 'LoginCtrl'
@@ -98,11 +100,11 @@ angular.module('starter', ['ionic','ngMessages'])
 
 
 
-.controller('AppCtrl', function ($scope, $state,myCache) {
+.controller('AppCtrl', function ($scope, $state) {
     $scope.Pageredirect = function (value) {
 
         if (value == "logout") {
-            myCache.remove('UserId');
+            localStorage.clear();
             $state.go('login');
         }
         else if (value == 'call') {
@@ -112,59 +114,70 @@ angular.module('starter', ['ionic','ngMessages'])
     }
 })
 
-.controller('opencallCtrl', function ($scope, $state,$http,myCache) {
-
-        var cache = myCache.get('UserId');
-
-        if (cache) { // If there’s something in the cache, use it!
-            $scope.UserId = cache
-          }
-          else {
-            $state.go('login');
-            return;
-          }
-    $scope.calllists='';
-    $scope.calllists = [
-
-      { isDivider: true, divider: "Department A" },
-      { name: 'Welder Machine', id: 1, details: 'Opened at 10/04/2016 15:30',downtime:'false' },
-      { name: 'Press Machine', id: 2, details: 'Opened at 10/04/2016 18:30',downtime:'true' },
-        { name: 'Labeler', id: 3, details: 'Opened at 11/04/2016 15:30' ,downtime:'false'},
-       { isDivider: true, divider: "Department B" },
-
-      { name: 'Bag Machine', id: 4, details: 'Opened at 12/04/2016 15:30',downtime:'true' },
-      { name: 'Momuta', id: 5, details: 'Opened at 13/04/2016 15:30',downtime:'false'},
-
-    ];
+.controller('opencallCtrl', function ($scope, $state,$http) {
+    //variable initialization
+     var indexedTeams=[];
+     $scope.calllists='';
+     $scope.UserId=window.localStorage.getItem("UserId"); //get the login userid
+     if($scope.UserId ==undefined || $scope.UserId =="" || $scope.UserId == null)
+     {
+       $state.go('login');
+     }
 
     $scope.AddCall = function (value) {
         $state.go('app.newcall');
     }
 
+    $scope.bindcalls=function()
+    {
+
+         $http.get('http://192.168.0.137/LH_Mobile_Backend/faults/'+$scope.UserId).success(function (data) {
+          indexedTeams=[];
+          //assigning  falutlist
+        $scope.calllists=data;
+          }).error(function (data)
+         {
+          console.log('calls'+data);
+         });
+    }
+    //call binding
+    $scope.bindcalls();
+
+    $scope.filterDepartment = function(callist) {
+        var teamIsNew = indexedTeams.indexOf(callist.departmentid) == -1;
+        if (teamIsNew) {
+          indexedTeams.push(callist);
+        }
+        return teamIsNew;
+      }
+
 })
 
- .controller('updatecallCtrl', function ($scope, $stateParams,$http,$state,myCache) {
+ .controller('updatecallCtrl', function ($scope, $stateParams,$http,$state) {
+    //variable initalize
+    $scope.FaultID=$state.params.callistId;
+    $scope.updatecall = {
+      FaultID:0,
+      OwnerLoginID:0,
+      Comments:'',
+      FaultStatusID:0
+    };
 
-     $scope.name = 'Fault 1234';
      $scope.ownerlist='';
-     $scope.Owner='';
      $scope.statuslist='';
-     $scope.Status='';
-     var cache = myCache.get('UserId');
-     if (cache) { // If there’s something in the cache, use it!
-         $scope.UserId = cache
-       }
-       else {
-         $state.go('login');
-         return;
-       }
+     $scope.UserId=window.localStorage.getItem("UserId"); //get the login userid
+     if($scope.UserId ==undefined || $scope.UserId =="" || $scope.UserId == null)
+     {
+       $state.go('login');
+     }
      //bind owner
      $scope.bindowner=function()
      {
 
-       $http.get('http://192.168.0.137/LH_Mobile_Backend/nancy/2/1').success(function (data) {
+       $http.get('http://192.168.0.137/LH_Mobile_Backend/lists/2/1').success(function (data) {
 
            $scope.ownerlist =data;
+           $scope.updatecall.OwnerLoginID=1;
            }).error(function (data)
           {
            console.log('owner'+data);
@@ -176,7 +189,7 @@ angular.module('starter', ['ionic','ngMessages'])
      $scope.bindstatus=function()
      {
 
-       $http.get('http://192.168.0.137/LH_Mobile_Backend/nancy/1/1').success(function (data) {
+       $http.get('http://192.168.0.137/LH_Mobile_Backend/lists/1/1').success(function (data) {
 
            $scope.statuslist =data;
            }).error(function (data)
@@ -189,28 +202,59 @@ angular.module('starter', ['ionic','ngMessages'])
      $scope.bindowner();
      $scope.bindstatus();
 
- })
- .controller('newcallCtrl', function ($http,$scope, $stateParams,$filter,$state,myCache) {
+     $scope.updatecall.FaultStatusID=1;
 
+     $scope.updatecall.Comments='test';
+     $scope.descritpion='test';
+
+  //update call  to service
+   $scope.UpdateFaultService=function(objcall)
+  {
+
+    objcall.FaultID=$scope.FaultID;
+    var updateurl='http://192.168.0.137/LH_Mobile_Backend/faults/update/';
+    $http.post(updateurl, JSON.stringify(objcall)).success(function(data){
+      if(data.length >0)
+      {
+        alert('Fault Updated Successfully');
+        $state.go('app.opencall');
+      }
+    }).error(function(data)
+    {
+
+     console.log('updatefault' +data);
+    });
+
+  }
+
+ })
+ .controller('newcallCtrl', function ($http,$scope, $stateParams,$filter,$state) {
+//initalize the model in call
+   $scope.objcall = {
+     DepartmentID:0,
+     AssetID:0,
+     CommonFaultID:0,
+     OwnerLoginID:0,
+     Fault:'',
+     IsDowntime:false
+   };
+
+
+   $scope.UserId=window.localStorage.getItem("UserId"); //get the login userid
+   if($scope.UserId ==undefined || $scope.UserId =="" || $scope.UserId == null)
+   {
+     $state.go('login');
+   }
   $scope.departmentlist='';
-  $scope.department='';
+
   $scope.Assetslist='';
-  $scope.Asset='';
+
   $scope.faultlist='';
   $scope.ownerlist='';
-  $scope.owner='';
-  var cache = myCache.get('UserId');
-  if (cache) { // If there’s something in the cache, use it!
-      $scope.UserId = cache
-    }
-    else {
-      $state.go('login');
-      return;
-    }
 
 //bind departments
   $scope.binddepartments = function(){
-    $http.get('http://192.168.0.137/LH_Mobile_Backend/nancy/5/1').success(function (data) {
+    $http.get('http://192.168.0.137/LH_Mobile_Backend/lists/5/1').success(function (data) {
               $scope.departmentlist=data;
         }).error(function (data)
        {
@@ -226,7 +270,7 @@ angular.module('starter', ['ionic','ngMessages'])
    //bind Asset by departmentId
    $scope.bindassets = function(value){
      $scope.Assetslist='';
-     $http.get('http://192.168.0.137/LH_Mobile_Backend/nancy/4/'+value).success(function (data) {
+     $http.get('http://192.168.0.137/LH_Mobile_Backend/lists/4/'+value).success(function (data) {
          //$scope.Assetslist = $filter('filter')(data, { DepartmentID: value });
          $scope.Assetslist =data;
          }).error(function (data)
@@ -238,8 +282,8 @@ angular.module('starter', ['ionic','ngMessages'])
     //bind Fault
     $scope.bindfault=function()
     {
-      $http.get('http://192.168.0.137/LH_Mobile_Backend/nancy/3/1').success(function (data) {
-          $scope.ownerlist =data;
+      $http.get('http://192.168.0.137/LH_Mobile_Backend/lists/3/1').success(function (data) {
+          $scope.faultlist =data;
           }).error(function (data)
          {
           console.log('owner'+data);
@@ -251,7 +295,7 @@ angular.module('starter', ['ionic','ngMessages'])
     $scope.bindowner=function()
     {
 
-      $http.get('http://192.168.0.137/LH_Mobile_Backend/nancy/2/1').success(function (data) {
+      $http.get('http://192.168.0.137/LH_Mobile_Backend/lists/2/1').success(function (data) {
 
           $scope.ownerlist =data;
           }).error(function (data)
@@ -265,11 +309,29 @@ angular.module('starter', ['ionic','ngMessages'])
   $scope.bindfault();
   $scope.bindowner();
 
+ //new call add to service
+   $scope.addcalltoservice=function(objcall)
+  {
+
+    var saveurl='http://192.168.0.137/LH_Mobile_Backend/faults/add/';
+
+    $http.post(saveurl,JSON.stringify(objcall)).success(function(data){
+      if(data == "1")
+      {
+        alert("Fault saved Successfully");
+        $state.go('app.opencall');
+      }
+    }).error(function(data)
+    {
+    console.log('savefault' +data);
+    });
+
+  }
 
 
  })
 
-.controller('LoginCtrl', function ($scope, $state,myCache) {
+.controller('LoginCtrl', function ($scope, $state,$http) {
   //initalize the model in login
   $scope.authorization = {
     username: '',
@@ -278,28 +340,38 @@ angular.module('starter', ['ionic','ngMessages'])
 
 //login event
     $scope.LogIn = function (form) {
-
       if(form.$valid) //validation checking
       {
-        if($scope.authorization.username=='Raz' && $scope.authorization.password =='123')
-        {
-        var cache = myCache.get('UserId'); //get data from cache
-        form.$setPristine(); //form validation reset
-        //model clear
-        $scope.authorization =
-        {
-          username: '',
-          password : ''
-        };
-        myCache.put('UserId','test'); //store the data from cahe
-        //go to the calllist page
-        $state.go('app.opencall');
 
+       var url='http://192.168.0.137/LH_Mobile_Backend/login/'+$scope.authorization.username+'/'+$scope.authorization.password;
+        $http.get(url).success(function (data) {
+
+          if(data.length>0)
+          {
+          if(typeof(Storage) != "undefined")
+           {
+           localStorage.setItem("UserId", data[0].ownerloginid); //store the data from localstorage
+          //go to the calllist page
+           $state.go('app.opencall');
+          }
          }
-       }
-       else {
+         else {
+             if(data.StatusCode == 401)
+             {
+               $scope.authorization = {
+                 username: '',
+                 password : ''
+               };
+               form.$setPristine();
+               alert("Invalid Credentials");
+             }
+         }
+        }).error(function (data)
+          {
+          console.log('owner'+data);
+        });
+      }
 
-       }
     };
 
 })
@@ -319,7 +391,4 @@ angular.module('starter', ['ionic','ngMessages'])
             '<div class="item item-divider ng-hide" ng-show="callist.isDivider" ng-bind="callist.divider"></div>'
         );
     }
-})
-.factory('myCache', function($cacheFactory) {
- return $cacheFactory('UserId');
 });
