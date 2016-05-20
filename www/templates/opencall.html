@@ -7,23 +7,21 @@
 
 
         <ion-list>
-            <div collection-repeat="callist in calllists" divider-collection-repeat>
-
-                <ion-item href="#/app/updatecall/{{callist.id}}">
+            <div collection-repeat="departmentdetails in calllists| filter:filterDepartment">
+            <div class="item item-divider">{{departmentdetails.department}}</div>
+                <ion-item  ng-repeat="callist in calllists | filter:{departmentid: departmentdetails.departmentid}" href="#/app/updatecall/{{departmentdetails.FaultID}}" >
                   <div class="item-icon-left">
-                    <div  ng-if="callist.downtime == 'true'">
+                    <div  ng-if="callist.IsDowntime == 1">
                         <i class="icon ion-android-alert balanced"></i>
                     </div>
-                    <div ng-if="callist.downtime == 'false'">
+                    <div ng-if="callist.IsDowntime == 0">
                   <i class="icon ion-android-alert assertive"></i>
                   </div>
-                <h2> {{callist.name}}</h2>
-                <p>{{callist.details}}</p>
+                <h2> {{callist.Fault}}</h2>
+                <p>{{callist.OpenDT}}</p>
                    </div>
-
-
                 </ion-item>
-            </div>
+ </div>
         </ion-list>
     </ion-content>
 

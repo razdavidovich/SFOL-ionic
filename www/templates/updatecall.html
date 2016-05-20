@@ -24,7 +24,7 @@
 
         <div class="padding">
         <label class="item item-input">
-           <textarea placeholder="Fault Text"></textarea>
+           <textarea placeholder="Fault Text" ng-model="updatecall.Comments"></textarea>
          </label>
         </div>
 
@@ -35,7 +35,7 @@
 <div class="input-label">
 Owner
 </div>
-<select ng-model="Owner">
+<select ng-model="updatecall.OwnerLoginID">
 <option ng-repeat="owner in ownerlist" value="{{owner.OwnerLoginID}}">{{owner.OwnerLogin}}</option></select>
 </label>
 
@@ -46,7 +46,7 @@ Owner
   <div class="input-label">
   State
   </div>
-  <select ng-model="Status">
+  <select ng-model="updatecall.FaultStatusID">
   <option ng-repeat="status in statuslist" value="{{status.FaultStatusID}}">{{status.FaultStatus}}</option></select>
   </label>
 
@@ -55,11 +55,11 @@ Owner
 <div class="padding">
 
   <label class="item item-input">
-     <textarea ></textarea>
+     <textarea ng-model="descritpion" ></textarea>
    </label>
  </div>
  <div class="padding">
-     <button nav-clear class="button button-block button-positive">
+     <button nav-clear class="button button-block button-positive" ng-click="UpdateFaultService(updatecall)">
          Save
      </button>
 
