@@ -119,6 +119,8 @@ angular.module('starter', ['ionic','ngMessages'])
      var indexedTeams=[];
      $scope.calllists='';
      $scope.UserId=window.localStorage.getItem("UserId"); //get the login userid
+     //initalize the service url
+     const BASE_URL_VALUE = "http://192.168.0.137/LH_Mobile_Backend"
      if($scope.UserId ==undefined || $scope.UserId =="" || $scope.UserId == null)
      {
        $state.go('login');
@@ -131,10 +133,10 @@ angular.module('starter', ['ionic','ngMessages'])
     $scope.bindcalls=function()
     {
 
-         $http.get('http://192.168.0.137/LH_Mobile_Backend/faults/'+$scope.UserId).success(function (data) {
-          indexedTeams=[];
+         $http.get(BASE_URL_VALUE+'/faults/'+$scope.UserId).success(function (data) {
+         indexedTeams=[];
           //assigning  falutlist
-        $scope.calllists=data;
+          $scope.calllists=data;
           }).error(function (data)
          {
           console.log('calls'+data);
@@ -153,7 +155,7 @@ angular.module('starter', ['ionic','ngMessages'])
 
 })
 
- .controller('updatecallCtrl', function ($scope, $stateParams,$http,$state) {
+ .controller('updatecallCtrl', function ($scope, $stateParams,$http,$state,$ionicPopup) {
     //variable initalize
     $scope.FaultID=$state.params.callistId;
     $scope.updatecall = {
@@ -162,7 +164,8 @@ angular.module('starter', ['ionic','ngMessages'])
       Comments:'',
       FaultStatusID:0
     };
-
+       //initalize the service url
+    const BASE_URL_VALUE = "http://192.168.0.137/LH_Mobile_Backend"
      $scope.ownerlist='';
      $scope.statuslist='';
      $scope.UserId=window.localStorage.getItem("UserId"); //get the login userid
@@ -174,7 +177,7 @@ angular.module('starter', ['ionic','ngMessages'])
      $scope.bindowner=function()
      {
 
-       $http.get('http://192.168.0.137/LH_Mobile_Backend/lists/2/1').success(function (data) {
+       $http.get(BASE_URL_VALUE+'/lists/2/1').success(function (data) {
 
            $scope.ownerlist =data;
            $scope.updatecall.OwnerLoginID=1;
@@ -189,7 +192,7 @@ angular.module('starter', ['ionic','ngMessages'])
      $scope.bindstatus=function()
      {
 
-       $http.get('http://192.168.0.137/LH_Mobile_Backend/lists/1/1').success(function (data) {
+       $http.get(BASE_URL_VALUE+'/lists/1/1').success(function (data) {
 
            $scope.statuslist =data;
            }).error(function (data)
@@ -212,12 +215,18 @@ angular.module('starter', ['ionic','ngMessages'])
   {
 
     objcall.FaultID=$scope.FaultID;
-    var updateurl='http://192.168.0.137/LH_Mobile_Backend/faults/update/';
+    var updateurl=BASE_URL_VALUE+'/faults/update/';
     $http.post(updateurl, JSON.stringify(objcall)).success(function(data){
       if(data.length >0)
       {
-        alert('Fault Updated Successfully');
-        $state.go('app.opencall');
+        //ionic popup
+       updatePopup=$ionicPopup.alert({
+        title: 'Fault',
+        template: 'Fault Updated Successfully'
+        });
+        updatePopup.then(function(res) {
+          $state.go('app.opencall');
+       });
       }
     }).error(function(data)
     {
@@ -228,7 +237,7 @@ angular.module('starter', ['ionic','ngMessages'])
   }
 
  })
- .controller('newcallCtrl', function ($http,$scope, $stateParams,$filter,$state) {
+ .controller('newcallCtrl', function ($http,$scope, $stateParams,$filter,$state,$ionicPopup) {
 //initalize the model in call
    $scope.objcall = {
      DepartmentID:0,
@@ -238,8 +247,8 @@ angular.module('starter', ['ionic','ngMessages'])
      Fault:'',
      IsDowntime:false
    };
-
-
+   //initalize the service url
+   const BASE_URL_VALUE = "http://192.168.0.137/LH_Mobile_Backend";
    $scope.UserId=window.localStorage.getItem("UserId"); //get the login userid
    if($scope.UserId ==undefined || $scope.UserId =="" || $scope.UserId == null)
    {
@@ -254,7 +263,7 @@ angular.module('starter', ['ionic','ngMessages'])
 
 //bind departments
   $scope.binddepartments = function(){
-    $http.get('http://192.168.0.137/LH_Mobile_Backend/lists/5/1').success(function (data) {
+    $http.get(BASE_URL_VALUE +'/lists/5/1').success(function (data) {
               $scope.departmentlist=data;
         }).error(function (data)
        {
@@ -270,7 +279,7 @@ angular.module('starter', ['ionic','ngMessages'])
    //bind Asset by departmentId
    $scope.bindassets = function(value){
      $scope.Assetslist='';
-     $http.get('http://192.168.0.137/LH_Mobile_Backend/lists/4/'+value).success(function (data) {
+     $http.get(BASE_URL_VALUE+'/lists/4/'+value).success(function (data) {
          //$scope.Assetslist = $filter('filter')(data, { DepartmentID: value });
          $scope.Assetslist =data;
          }).error(function (data)
@@ -282,7 +291,7 @@ angular.module('starter', ['ionic','ngMessages'])
     //bind Fault
     $scope.bindfault=function()
     {
-      $http.get('http://192.168.0.137/LH_Mobile_Backend/lists/3/1').success(function (data) {
+      $http.get(BASE_URL_VALUE+'/lists/3/1').success(function (data) {
           $scope.faultlist =data;
           }).error(function (data)
          {
@@ -295,7 +304,7 @@ angular.module('starter', ['ionic','ngMessages'])
     $scope.bindowner=function()
     {
 
-      $http.get('http://192.168.0.137/LH_Mobile_Backend/lists/2/1').success(function (data) {
+      $http.get(BASE_URL_VALUE+'/lists/2/1').success(function (data) {
 
           $scope.ownerlist =data;
           }).error(function (data)
@@ -313,13 +322,20 @@ angular.module('starter', ['ionic','ngMessages'])
    $scope.addcalltoservice=function(objcall)
   {
 
-    var saveurl='http://192.168.0.137/LH_Mobile_Backend/faults/add/';
+    var saveurl=BASE_URL_VALUE+'/faults/add/';
 
     $http.post(saveurl,JSON.stringify(objcall)).success(function(data){
       if(data == "1")
       {
-        alert("Fault saved Successfully");
-        $state.go('app.opencall');
+        //ionic popup
+       savePopup=$ionicPopup.alert({
+        title: 'Fault',
+        template: 'Fault saved Successfully'
+        });
+        savePopup.then(function(res) {
+          $state.go('app.opencall');
+       });
+
       }
     }).error(function(data)
     {
@@ -331,19 +347,19 @@ angular.module('starter', ['ionic','ngMessages'])
 
  })
 
-.controller('LoginCtrl', function ($scope, $state,$http) {
+.controller('LoginCtrl', function ($scope, $state,$http,$ionicPopup) {
   //initalize the model in login
   $scope.authorization = {
     username: '',
     password : ''
   };
-
+     //initalize the service url
+  const BASE_URL_VALUE = "http://192.168.0.137/LH_Mobile_Backend"
 //login event
     $scope.LogIn = function (form) {
       if(form.$valid) //validation checking
       {
-
-       var url='http://192.168.0.137/LH_Mobile_Backend/login/'+$scope.authorization.username+'/'+$scope.authorization.password;
+        var url=BASE_URL_VALUE+'/login/'+$scope.authorization.username+'/'+$scope.authorization.password;
         $http.get(url).success(function (data) {
 
           if(data.length>0)
@@ -363,7 +379,12 @@ angular.module('starter', ['ionic','ngMessages'])
                  password : ''
                };
                form.$setPristine();
-               alert("Invalid Credentials");
+               //ionic popup
+               $ionicPopup.alert({
+               title: 'Login',
+               template: 'Invalid Credentials.Try again'
+               });
+
              }
          }
         }).error(function (data)
