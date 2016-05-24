@@ -4,8 +4,7 @@
     </ion-nav-buttons>
 
     <ion-content class="has-header">
-
-
+      
         <ion-list>
             <div collection-repeat="departmentdetails in calllists| filter:filterDepartment">
             <div class="item item-divider">{{departmentdetails.department}}</div>
@@ -18,10 +17,11 @@
                   <i class="icon ion-android-alert assertive"></i>
                   </div>
                 <h2> {{callist.Fault}}</h2>
-                <p>{{callist.OpenDT}}</p>
+                <p my-directive></p>
                    </div>
+
                 </ion-item>
- </div>
+           </div>
         </ion-list>
     </ion-content>
 
