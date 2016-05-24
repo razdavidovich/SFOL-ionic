@@ -35,8 +35,11 @@
 <div class="input-label">
 Owner
 </div>
-<select ng-model="updatecall.OwnerLoginID">
-<option ng-repeat="owner in ownerlist" value="{{owner.OwnerLoginID}}">{{owner.OwnerLogin}}</option></select>
+
+<select  ng-model="updatecall.OwnerLoginID">
+<option ng-repeat="owner in ownerlist" value="{{owner.OwnerLoginID}}" >{{owner.OwnerLogin}}</option>
+</select>
+
 </label>
 
 </div>
@@ -46,8 +49,10 @@ Owner
   <div class="input-label">
   State
   </div>
+
   <select ng-model="updatecall.FaultStatusID">
-  <option ng-repeat="status in statuslist" value="{{status.FaultStatusID}}">{{status.FaultStatus}}</option></select>
+  <option ng-repeat="status in statuslist" value="{{status.FaultStatusID}}" >{{status.FaultStatus}}</option>
+ </select>
   </label>
 
 </div>

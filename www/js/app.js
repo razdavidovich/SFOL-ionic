@@ -3,9 +3,9 @@
 // angular.module is a global place for creating, registering and retrieving Angular modules
 // 'starter' is the name of this angular module example (also set in a <body> attribute in index.html)
 // the 2nd parameter is an array of 'requires'
-angular.module('starter', ['ionic','ngMessages'])
+var app=angular.module('starter', ['ionic','ngMessages'])
 
-.run(function($ionicPlatform) {
+app.run(function($ionicPlatform) {
   $ionicPlatform.ready(function() {
     if(window.cordova && window.cordova.plugins.Keyboard) {
       // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
@@ -22,10 +22,10 @@ angular.module('starter', ['ionic','ngMessages'])
     }
   });
 })
+//initalize the service url assign constant
+app.constant('BASE_URL_VALUE', 'http://192.168.0.137/LH_Mobile_Backend');
 
-
-
-.config(function ($stateProvider, $urlRouterProvider) {
+app.config(function ($stateProvider, $urlRouterProvider) {
 
     $stateProvider
 
@@ -100,7 +100,7 @@ angular.module('starter', ['ionic','ngMessages'])
 
 
 
-.controller('AppCtrl', function ($scope, $state) {
+app.controller('AppCtrl', function ($scope, $state) {
     $scope.Pageredirect = function (value) {
 
         if (value == "logout") {
@@ -114,17 +114,18 @@ angular.module('starter', ['ionic','ngMessages'])
     }
 })
 
-.controller('opencallCtrl', function ($scope, $state,$http) {
+app.controller('opencallCtrl', function ($scope, $state,$http,BASE_URL_VALUE) {
     //variable initialization
      var indexedTeams=[];
      $scope.calllists='';
      $scope.UserId=window.localStorage.getItem("UserId"); //get the login userid
-     //initalize the service url
-     const BASE_URL_VALUE = "http://192.168.0.137/LH_Mobile_Backend"
      if($scope.UserId ==undefined || $scope.UserId =="" || $scope.UserId == null)
      {
        $state.go('login');
      }
+
+
+
 
     $scope.AddCall = function (value) {
         $state.go('app.newcall');
@@ -136,12 +137,14 @@ angular.module('starter', ['ionic','ngMessages'])
          $http.get(BASE_URL_VALUE+'/faults/'+$scope.UserId).success(function (data) {
          indexedTeams=[];
           //assigning  falutlist
+          $scope.calllists=[];
           $scope.calllists=data;
           }).error(function (data)
          {
           console.log('calls'+data);
          });
     }
+
     //call binding
     $scope.bindcalls();
 
@@ -155,7 +158,7 @@ angular.module('starter', ['ionic','ngMessages'])
 
 })
 
- .controller('updatecallCtrl', function ($scope, $stateParams,$http,$state,$ionicPopup) {
+ app.controller('updatecallCtrl', function ($scope, $stateParams,$http,$state,$ionicPopup,BASE_URL_VALUE) {
     //variable initalize
     $scope.FaultID=$state.params.callistId;
     $scope.updatecall = {
@@ -164,10 +167,10 @@ angular.module('starter', ['ionic','ngMessages'])
       Comments:'',
       FaultStatusID:0
     };
-       //initalize the service url
-    const BASE_URL_VALUE = "http://192.168.0.137/LH_Mobile_Backend"
+    $scope.name='Fault 1234';
      $scope.ownerlist='';
      $scope.statuslist='';
+
      $scope.UserId=window.localStorage.getItem("UserId"); //get the login userid
      if($scope.UserId ==undefined || $scope.UserId =="" || $scope.UserId == null)
      {
@@ -180,7 +183,7 @@ angular.module('starter', ['ionic','ngMessages'])
        $http.get(BASE_URL_VALUE+'/lists/2/1').success(function (data) {
 
            $scope.ownerlist =data;
-           $scope.updatecall.OwnerLoginID=1;
+           $scope.updatecall.OwnerLoginID=$scope.UserId;
            }).error(function (data)
           {
            console.log('owner'+data);
@@ -195,6 +198,7 @@ angular.module('starter', ['ionic','ngMessages'])
        $http.get(BASE_URL_VALUE+'/lists/1/1').success(function (data) {
 
            $scope.statuslist =data;
+           $scope.updatecall.FaultStatusID="1";
            }).error(function (data)
           {
            console.log('status'+data);
@@ -237,7 +241,7 @@ angular.module('starter', ['ionic','ngMessages'])
   }
 
  })
- .controller('newcallCtrl', function ($http,$scope, $stateParams,$filter,$state,$ionicPopup) {
+ app.controller('newcallCtrl', function ($http,$scope, $stateParams,$filter,$state,$ionicPopup,BASE_URL_VALUE) {
 //initalize the model in call
    $scope.objcall = {
      DepartmentID:0,
@@ -247,8 +251,7 @@ angular.module('starter', ['ionic','ngMessages'])
      Fault:'',
      IsDowntime:false
    };
-   //initalize the service url
-   const BASE_URL_VALUE = "http://192.168.0.137/LH_Mobile_Backend";
+
    $scope.UserId=window.localStorage.getItem("UserId"); //get the login userid
    if($scope.UserId ==undefined || $scope.UserId =="" || $scope.UserId == null)
    {
@@ -347,14 +350,13 @@ angular.module('starter', ['ionic','ngMessages'])
 
  })
 
-.controller('LoginCtrl', function ($scope, $state,$http,$ionicPopup) {
+app.controller('LoginCtrl', function ($scope, $state,$http,$ionicPopup,BASE_URL_VALUE) {
   //initalize the model in login
   $scope.authorization = {
     username: '',
     password : ''
   };
-     //initalize the service url
-  const BASE_URL_VALUE = "http://192.168.0.137/LH_Mobile_Backend"
+
 //login event
     $scope.LogIn = function (form) {
       if(form.$valid) //validation checking
@@ -396,20 +398,10 @@ angular.module('starter', ['ionic','ngMessages'])
     };
 
 })
-.directive('dividerCollectionRepeat', function ($parse) {
-    return {
-        priority: 1001,
-        compile: compile
+app.directive('myDirective', function ($filter) {
+    return function (scope,element, attr) {
+      // var date = new Date(scope.callist.OpenDT).toUTCString();
+       var formatdate=new Date(scope.callist.OpenDT).toISOString().split('T')[0].split('-').reverse().join('/') +' ' + new Date(scope.callist.OpenDT).toISOString().split('T')[1].split('.')[0];
+       element.html('Opened at ' + formatdate);
     };
-
-    function compile(element, attr) {
-
-        var height = attr.itemHeight || '73';
-        attr.$set('itemHeight', 'callist.isDivider ? 37 : ' + height);
-
-        element.children().attr('ng-hide', 'callist.isDivider');
-        element.prepend(
-            '<div class="item item-divider ng-hide" ng-show="callist.isDivider" ng-bind="callist.divider"></div>'
-        );
-    }
 });
