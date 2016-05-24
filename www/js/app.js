@@ -3,7 +3,7 @@
 // angular.module is a global place for creating, registering and retrieving Angular modules
 // 'starter' is the name of this angular module example (also set in a <body> attribute in index.html)
 // the 2nd parameter is an array of 'requires'
-var app=angular.module('starter', ['ionic','ngMessages'])
+var app=angular.module('starter', ['ionic','ngMessages','angular.filter'])
 
 app.run(function($ionicPlatform) {
   $ionicPlatform.ready(function() {
@@ -114,9 +114,9 @@ app.controller('AppCtrl', function ($scope, $state) {
     }
 })
 
-app.controller('opencallCtrl', function ($scope, $state,$http,BASE_URL_VALUE) {
+app.controller('opencallCtrl', function ($scope, $state,$http,BASE_URL_VALUE,$rootScope) {
     //variable initialization
-     var indexedTeams=[];
+
      $scope.calllists='';
      $scope.UserId=window.localStorage.getItem("UserId"); //get the login userid
      if($scope.UserId ==undefined || $scope.UserId =="" || $scope.UserId == null)
@@ -135,10 +135,10 @@ app.controller('opencallCtrl', function ($scope, $state,$http,BASE_URL_VALUE) {
     {
 
          $http.get(BASE_URL_VALUE+'/faults/'+$scope.UserId).success(function (data) {
-         indexedTeams=[];
+
           //assigning  falutlist
-          $scope.calllists=[];
           $scope.calllists=data;
+        //  $scope.$broadcast('scroll.refreshComplete');
           }).error(function (data)
          {
           console.log('calls'+data);
@@ -148,17 +148,19 @@ app.controller('opencallCtrl', function ($scope, $state,$http,BASE_URL_VALUE) {
     //call binding
     $scope.bindcalls();
 
-    $scope.filterDepartment = function(callist) {
-        var teamIsNew = indexedTeams.indexOf(callist.departmentid) == -1;
-        if (teamIsNew) {
-          indexedTeams.push(callist);
-        }
-        return teamIsNew;
-      }
+    $scope.Updatecall=function(callist)
+    {
+
+      $rootScope.editcalllist=callist;
+       $state.go('app.updatecall', {callistId: callist.FaultID});
+        //$state.go('app.updatecall');
+    }
+
+
 
 })
 
- app.controller('updatecallCtrl', function ($scope, $stateParams,$http,$state,$ionicPopup,BASE_URL_VALUE) {
+ app.controller('updatecallCtrl', function ($scope, $stateParams,$http,$state,$ionicPopup,BASE_URL_VALUE,$rootScope) {
     //variable initalize
     $scope.FaultID=$state.params.callistId;
     $scope.updatecall = {
@@ -167,7 +169,7 @@ app.controller('opencallCtrl', function ($scope, $state,$http,BASE_URL_VALUE) {
       Comments:'',
       FaultStatusID:0
     };
-    $scope.name='Fault 1234';
+     $scope.name='';
      $scope.ownerlist='';
      $scope.statuslist='';
 
@@ -176,6 +178,8 @@ app.controller('opencallCtrl', function ($scope, $state,$http,BASE_URL_VALUE) {
      {
        $state.go('login');
      }
+
+
      //bind owner
      $scope.bindowner=function()
      {
@@ -183,7 +187,7 @@ app.controller('opencallCtrl', function ($scope, $state,$http,BASE_URL_VALUE) {
        $http.get(BASE_URL_VALUE+'/lists/2/1').success(function (data) {
 
            $scope.ownerlist =data;
-           $scope.updatecall.OwnerLoginID=$scope.UserId;
+
            }).error(function (data)
           {
            console.log('owner'+data);
@@ -198,7 +202,7 @@ app.controller('opencallCtrl', function ($scope, $state,$http,BASE_URL_VALUE) {
        $http.get(BASE_URL_VALUE+'/lists/1/1').success(function (data) {
 
            $scope.statuslist =data;
-           $scope.updatecall.FaultStatusID="1";
+
            }).error(function (data)
           {
            console.log('status'+data);
@@ -209,10 +213,17 @@ app.controller('opencallCtrl', function ($scope, $state,$http,BASE_URL_VALUE) {
      $scope.bindowner();
      $scope.bindstatus();
 
-     $scope.updatecall.FaultStatusID=1;
 
-     $scope.updatecall.Comments='test';
-     $scope.descritpion='test';
+
+
+     if($rootScope.editcalllist !=undefined || $rootScope.editcalllist !="" || $rootScope.editcalllist !=null )
+     {       
+      $scope.updatecall.FaultStatusID=$rootScope.editcalllist.FaultStatusID;
+      $scope.updatecall.Comments=$rootScope.editcalllist.Fault;
+      $scope.descritpion='test';
+      $scope.name=$rootScope.editcalllist.Fault;
+      $scope.updatecall.OwnerLoginID=$scope.UserId;
+     }
 
   //update call  to service
    $scope.UpdateFaultService=function(objcall)
@@ -328,9 +339,10 @@ app.controller('opencallCtrl', function ($scope, $state,$http,BASE_URL_VALUE) {
     var saveurl=BASE_URL_VALUE+'/faults/add/';
 
     $http.post(saveurl,JSON.stringify(objcall)).success(function(data){
-      if(data == "1")
+      if(data != null || data !="" || data !=undefined)
       {
         //ionic popup
+        var faultid=data;
        savePopup=$ionicPopup.alert({
         title: 'Fault',
         template: 'Fault saved Successfully'
@@ -398,6 +410,7 @@ app.controller('LoginCtrl', function ($scope, $state,$http,$ionicPopup,BASE_URL_
     };
 
 })
+
 app.directive('myDirective', function ($filter) {
     return function (scope,element, attr) {
       // var date = new Date(scope.callist.OpenDT).toUTCString();

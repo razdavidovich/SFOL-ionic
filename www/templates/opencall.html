@@ -4,11 +4,12 @@
     </ion-nav-buttons>
 
     <ion-content class="has-header">
-      
+
         <ion-list>
-            <div collection-repeat="departmentdetails in calllists| filter:filterDepartment">
-            <div class="item item-divider">{{departmentdetails.department}}</div>
-                <ion-item  ng-repeat="callist in calllists | filter:{departmentid: departmentdetails.departmentid}" href="#/app/updatecall/{{departmentdetails.FaultID}}" >
+
+            <div ng-repeat="(department, calllist) in calllists| groupBy:'department'">
+            <div class="item item-divider"> {{department}}</div>
+                <ion-item  ng-repeat="callist in calllist" ng-click="Updatecall(callist)">
                   <div class="item-icon-left">
                     <div  ng-if="callist.IsDowntime == 1">
                         <i class="icon ion-android-alert balanced"></i>
@@ -23,6 +24,8 @@
                 </ion-item>
            </div>
         </ion-list>
+
+
     </ion-content>
 
 
