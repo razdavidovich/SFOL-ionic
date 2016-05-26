@@ -135,10 +135,9 @@ app.controller('opencallCtrl', function ($scope, $state,$http,BASE_URL_VALUE,$ro
     {
 
          $http.get(BASE_URL_VALUE+'/faults/'+$scope.UserId).success(function (data) {
-
           //assigning  falutlist
+          $scope.$broadcast('scroll.refreshComplete');
           $scope.calllists=data;
-        //  $scope.$broadcast('scroll.refreshComplete');
           }).error(function (data)
          {
           console.log('calls'+data);
@@ -162,7 +161,6 @@ app.controller('opencallCtrl', function ($scope, $state,$http,BASE_URL_VALUE,$ro
 
  app.controller('updatecallCtrl', function ($scope, $stateParams,$http,$state,$ionicPopup,BASE_URL_VALUE,$rootScope) {
     //variable initalize
-    $scope.FaultID=$state.params.callistId;
     $scope.updatecall = {
       FaultID:0,
       OwnerLoginID:0,
@@ -172,6 +170,8 @@ app.controller('opencallCtrl', function ($scope, $state,$http,BASE_URL_VALUE,$ro
      $scope.name='';
      $scope.ownerlist='';
      $scope.statuslist='';
+     //parameter assigned to scope variable
+     $scope.FaultID=$state.params.callistId;
 
      $scope.UserId=window.localStorage.getItem("UserId"); //get the login userid
      if($scope.UserId ==undefined || $scope.UserId =="" || $scope.UserId == null)
@@ -217,11 +217,13 @@ app.controller('opencallCtrl', function ($scope, $state,$http,BASE_URL_VALUE,$ro
 
 
      if($rootScope.editcalllist !=undefined || $rootScope.editcalllist !="" || $rootScope.editcalllist !=null )
-     {       
+     {
       $scope.updatecall.FaultStatusID=$rootScope.editcalllist.FaultStatusID;
       $scope.updatecall.Comments=$rootScope.editcalllist.Fault;
-      $scope.descritpion='test';
-      $scope.name=$rootScope.editcalllist.Fault;
+    //  $scope.descritpion='test';
+      $scope.name='Fault ' + $scope.FaultID;
+      $scope.Asset=$rootScope.editcalllist.Asset;
+      $scope.CommonFault=$rootScope.editcalllist.CommonFault;
       $scope.updatecall.OwnerLoginID=$scope.UserId;
      }
 
@@ -243,6 +245,9 @@ app.controller('opencallCtrl', function ($scope, $state,$http,BASE_URL_VALUE,$ro
           $state.go('app.opencall');
        });
       }
+      else {
+        console.log(data.ReasonPhrase);
+      }
     }).error(function(data)
     {
 
@@ -255,7 +260,6 @@ app.controller('opencallCtrl', function ($scope, $state,$http,BASE_URL_VALUE,$ro
  app.controller('newcallCtrl', function ($http,$scope, $stateParams,$filter,$state,$ionicPopup,BASE_URL_VALUE) {
 //initalize the model in call
    $scope.objcall = {
-     DepartmentID:0,
      AssetID:0,
      CommonFaultID:0,
      OwnerLoginID:0,
@@ -337,7 +341,6 @@ app.controller('opencallCtrl', function ($scope, $state,$http,BASE_URL_VALUE,$ro
   {
 
     var saveurl=BASE_URL_VALUE+'/faults/add/';
-
     $http.post(saveurl,JSON.stringify(objcall)).success(function(data){
       if(data != null || data !="" || data !=undefined)
       {
@@ -410,7 +413,6 @@ app.controller('LoginCtrl', function ($scope, $state,$http,$ionicPopup,BASE_URL_
     };
 
 })
-
 app.directive('myDirective', function ($filter) {
     return function (scope,element, attr) {
       // var date = new Date(scope.callist.OpenDT).toUTCString();
