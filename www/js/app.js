@@ -76,19 +76,12 @@ app.config(function ($stateProvider, $urlRouterProvider) {
                  }
              }
          })
-
-
-
-
       .state('login', {
           cache: false,
           url: "/login",
           templateUrl: "templates/login.html",
           controller: 'LoginCtrl'
       });
-
-
-
 
 
 
@@ -185,9 +178,7 @@ app.controller('opencallCtrl', function ($scope, $state,$http,BASE_URL_VALUE,$ro
      {
 
        $http.get(BASE_URL_VALUE+'/lists/2/1').success(function (data) {
-
            $scope.ownerlist =data;
-
            }).error(function (data)
           {
            console.log('owner'+data);
@@ -200,9 +191,7 @@ app.controller('opencallCtrl', function ($scope, $state,$http,BASE_URL_VALUE,$ro
      {
 
        $http.get(BASE_URL_VALUE+'/lists/1/1').success(function (data) {
-
            $scope.statuslist =data;
-
            }).error(function (data)
           {
            console.log('status'+data);
@@ -218,13 +207,18 @@ app.controller('opencallCtrl', function ($scope, $state,$http,BASE_URL_VALUE,$ro
 
      if($rootScope.editcalllist !=undefined || $rootScope.editcalllist !="" || $rootScope.editcalllist !=null )
      {
-      $scope.updatecall.FaultStatusID=$rootScope.editcalllist.FaultStatusID;
+
+       if($rootScope.editcalllist.FaultStatusID != "0")
+       {
+       $scope.updatecall.FaultStatusID=$rootScope.editcalllist.FaultStatusID.toString();
+       }
       $scope.updatecall.Comments=$rootScope.editcalllist.Fault;
-    //  $scope.descritpion='test';
+
       $scope.name='Fault ' + $scope.FaultID;
       $scope.Asset=$rootScope.editcalllist.Asset;
       $scope.CommonFault=$rootScope.editcalllist.CommonFault;
-      $scope.updatecall.OwnerLoginID=$scope.UserId;
+      //$scope.updatecall.OwnerLoginID=$scope.UserId;
+      $scope.updatecall.OwnerLoginID=$rootScope.editcalllist.OwnerLoginID.toString();
      }
 
   //update call  to service
@@ -233,8 +227,9 @@ app.controller('opencallCtrl', function ($scope, $state,$http,BASE_URL_VALUE,$ro
 
     objcall.FaultID=$scope.FaultID;
     var updateurl=BASE_URL_VALUE+'/faults/update/';
-    $http.post(updateurl, JSON.stringify(objcall)).success(function(data){
-      if(data.length >0)
+    $http.post(updateurl, JSON.stringify(objcall)).success(function(data,status){
+
+      if(status==200)
       {
         //ionic popup
        updatePopup=$ionicPopup.alert({
@@ -245,13 +240,19 @@ app.controller('opencallCtrl', function ($scope, $state,$http,BASE_URL_VALUE,$ro
           $state.go('app.opencall');
        });
       }
-      else {
-        console.log(data.ReasonPhrase);
-      }
-    }).error(function(data)
-    {
 
-     console.log('updatefault' +data);
+    }).error(function(data,status)
+    {
+        if(status == 503){
+          errorpopup=$ionicPopup.alert({
+           title: 'Fault',
+           template: 'Service Unavailable.Please try again.'
+           });
+           errorpopup.then(function(res) {
+          });
+       }
+
+
     });
 
   }
@@ -339,10 +340,9 @@ app.controller('opencallCtrl', function ($scope, $state,$http,BASE_URL_VALUE,$ro
  //new call add to service
    $scope.addcalltoservice=function(objcall)
   {
-
     var saveurl=BASE_URL_VALUE+'/faults/add/';
-    $http.post(saveurl,JSON.stringify(objcall)).success(function(data){
-      if(data != null || data !="" || data !=undefined)
+    $http.post(saveurl,JSON.stringify(objcall)).success(function(data,status){
+      if(status==200)
       {
         //ionic popup
         var faultid=data;
@@ -353,18 +353,34 @@ app.controller('opencallCtrl', function ($scope, $state,$http,BASE_URL_VALUE,$ro
         savePopup.then(function(res) {
           $state.go('app.opencall');
        });
-
       }
-    }).error(function(data)
+
+    }).error(function(data,status)
     {
-    console.log('savefault' +data);
+      if(status == 503){
+        errorpopup=$ionicPopup.alert({
+         title: 'Fault',
+         template: 'Service Unavailable.Please try again.'
+         });
+         errorpopup.then(function(res) {
+
+        });
+     }
+
     });
+
 
   }
 
 
  })
+app.controller('languageCtrl', function($scope, $translate) {
 
+ 	$scope.ChangeLanguage = function(lang){
+ 		$translate.use(lang);
+ 	}
+
+ });
 app.controller('LoginCtrl', function ($scope, $state,$http,$ionicPopup,BASE_URL_VALUE) {
   //initalize the model in login
   $scope.authorization = {
@@ -377,8 +393,7 @@ app.controller('LoginCtrl', function ($scope, $state,$http,$ionicPopup,BASE_URL_
       if(form.$valid) //validation checking
       {
         var url=BASE_URL_VALUE+'/login/'+$scope.authorization.username+'/'+$scope.authorization.password;
-        $http.get(url).success(function (data) {
-
+        $http.get(url).success(function (data,status) {
           if(data.length>0)
           {
           if(typeof(Storage) != "undefined")
@@ -388,31 +403,31 @@ app.controller('LoginCtrl', function ($scope, $state,$http,$ionicPopup,BASE_URL_
            $state.go('app.opencall');
           }
          }
-         else {
-             if(data.StatusCode == 401)
-             {
-               $scope.authorization = {
-                 username: '',
-                 password : ''
-               };
-               form.$setPristine();
-               //ionic popup
-               $ionicPopup.alert({
-               title: 'Login',
-               template: 'Invalid Credentials.Try again'
-               });
 
-             }
-         }
-        }).error(function (data)
+       }).error(function (data,status)
+        {
+          if(status == 401)
           {
-          console.log('owner'+data);
+            $scope.authorization = {
+              username: '',
+              password : ''
+            };
+            form.$setPristine();
+            //ionic popup
+            //$ionicPopup.alert({
+           // title: 'Login',
+           // template: 'Invalid Credentials.Try again'
+           // });
+           $scope.message="Invalid Credentials.Please try again";
+
+          }
         });
       }
 
     };
 
 })
+
 app.directive('myDirective', function ($filter) {
     return function (scope,element, attr) {
       // var date = new Date(scope.callist.OpenDT).toUTCString();

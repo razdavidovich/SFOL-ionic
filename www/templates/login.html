@@ -11,7 +11,7 @@
        </div>
 
       <form name="authorizationForm" novalidate="" ng-submit="LogIn(authorizationForm)">
-
+        <label class="error" style="color:#B83E2C;">{{message}}</label>
         <div class="padding">
 
           <label class="item item-input" ng-class="{ 'has-errors' : authorizationForm.username.$invalid  && authorizationForm.$submitted,
