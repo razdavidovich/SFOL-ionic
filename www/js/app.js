@@ -305,7 +305,15 @@ app.controller('opencallCtrl', function ($scope, $state,$http,BASE_URL_VALUE,$ro
    //bind Asset by departmentId
    $scope.bindassets = function(value){
      $scope.Assetslist='';
-     $http.get(BASE_URL_VALUE+'/lists/4/'+value).success(function (data) {
+     var asseturl='';
+     if(value == 0)
+     {
+      asseturl=BASE_URL_VALUE+'/lists/4/';
+     }
+     else {
+       asseturl=BASE_URL_VALUE+'/lists/4/'+value;
+     }
+     $http.get(asseturl).success(function (data) {
          //$scope.Assetslist = $filter('filter')(data, { DepartmentID: value });
          $scope.Assetslist =data;
          }).error(function (data)
@@ -319,6 +327,10 @@ app.controller('opencallCtrl', function ($scope, $state,$http,BASE_URL_VALUE,$ro
     {
       $http.get(BASE_URL_VALUE+'/lists/3/1').success(function (data) {
           $scope.faultlist =data;
+          if($scope.faultlist.length>0)//set Select First Row
+           {
+           $scope.objcall.CommonFaultID=$scope.faultlist[0].CommonFaultID.toString();
+         } 
           }).error(function (data)
          {
           console.log('owner'+data);
@@ -343,6 +355,7 @@ app.controller('opencallCtrl', function ($scope, $state,$http,BASE_URL_VALUE,$ro
   $scope.binddepartments();
   $scope.bindfault();
   $scope.bindowner();
+  $scope.bindassets(0);
 
  //new call add to service
    $scope.addcalltoservice=function(objcall)
@@ -397,10 +410,10 @@ app.controller('opencallCtrl', function ($scope, $state,$http,BASE_URL_VALUE,$ro
              localStorage.setItem("IPAddress",   $scope.servicedetails.IPAddress); //store the data from ip address
              if($scope.servicedetails.hosttype)
              {
-              localStorage.setItem("hosttype",   $scope.servicedetails.hosttype); //store the data from ip address
+              localStorage.setItem("hosttype",   $scope.servicedetails.hosttype); //store the data from host type
              }
              else {
-               localStorage.setItem("hosttype",   'http'); //store the data from ip address
+               localStorage.setItem("hosttype",   'http'); //store the data from host type
              }
              BASE_URL_VALUE= localStorage.getItem("hosttype") +'://'+ localStorage.getItem("IPAddress")+'/LH_Mobile_Backend'
              $state.go('login');
@@ -426,7 +439,6 @@ app.controller('LoginCtrl', function ($scope, $state,$http,$ionicPopup,BASE_URL_
     if(localStorage.getItem("IPAddress") == "undefined" || localStorage.getItem("IPAddress") == null || localStorage.getItem("IPAddress") =="")
      {
     //go to the calllist page
-
      $state.go('Servicedetails');
      }
   }
@@ -478,7 +490,7 @@ app.directive('myDirective', function ($filter) {
     return function (scope,element, attr) {
       // var date = new Date(scope.callist.OpenDT).toUTCString();
        //var formatdate=new Date(scope.callist.OpenDT).toISOString().split('T')[0].split('-').reverse().join('/') +' ' + new Date(scope.callist.OpenDT).toISOString().split('T')[1].split('.')[0];
-       var formatdate=new Date(scope.callist.OpenDT).toLocaleDateString() + ' ' + new Date(scope.callist.OpenDT).toLocaleTimeString();
+       var formatdate=new Date(scope.callist.OpenedDT).toLocaleDateString() + ' ' + new Date(scope.callist.OpenedDT).toLocaleTimeString();
        element.html('Opened at ' + formatdate);
 
     };

@@ -7,7 +7,7 @@
         <div class="padding">
           <label class="item item-input">
           <span class="input-label">Asset:</span>
-          <input type="text" ng-model="Asset">
+          <input type="text" ng-model="Asset" ng-readonly="true">
         </label>
         </div>
 
@@ -16,15 +16,15 @@
 
         <div class="padding">
           <label class="item item-input">
-          <span class="input-label">Fault:</span>
-          <input type="text" ng-model="CommonFault">
+          <span class="input-label">Common Fault:</span>
+          <input type="text" ng-model="CommonFault" ng-readonly="true">
         </label>
         </div>
 
 
         <div class="padding">
         <label class="item item-input">
-           <textarea placeholder="Fault Text" ng-model="updatecall.Comments"></textarea>
+           <textarea placeholder="Fault Text" ng-model="updatecall.Comments" ng-readonly="true"></textarea>
          </label>
         </div>
 
@@ -60,7 +60,7 @@ Owner
 <div class="padding">
 
   <label class="item item-input">
-     <textarea ng-model="descritpion" ></textarea>
+     <textarea ng-model="descritpion" ng-model="Fielddescription"></textarea>
    </label>
  </div>
  <div class="padding">
