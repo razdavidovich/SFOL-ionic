@@ -1,0 +1,39 @@
+
+ <ion-view title="Service-Details" >
+   <ion-content >
+
+       <div class="row">
+        <div class="col">
+              <div class="text-center">
+                 <img src='img/sfologosmall.png'/>
+              </div>
+       </div>
+       </div>
+      <form name="authorizationForm" novalidate="" ng-submit="servicedetails(authorizationForm)">
+        <label class="error" style="color:#B83E2C;">{{message}}</label>
+        <div class="padding">
+          <label class="item item-input" ng-class="{ 'has-errors' : authorizationForm.IPAddress.$invalid  && authorizationForm.$submitted,
+          'no-errors' : authorizationForm.IPAddress.$valid && authorizationForm.$submitted}">
+            <span class="input-label">SFOL Backend Host</span>
+            <input type="text" name="IPAddress" ng-model="servicedetails.IPAddress"  required>
+          </label>
+
+          <div class="error-container last-error-container"
+           ng-show="authorizationForm.IPAddress.$error&& authorizationForm.$submitted" ng-messages="authorizationForm.IPAddress.$error">
+            <div ng-messages-include="templates/error-list.html"></div>
+          </div>
+        </div>
+          <div class="padding">
+           <ion-checkbox  ng-model="servicedetails.hosttype" ng-checked="hosttype" class="checkbox-balanced" >https</ion-checkbox>
+                </div>
+          <div class="padding">
+        <button class="button button-full button-positive" type="submit">
+        Verify
+        </button>
+      </div>
+
+      </form>
+
+    </ion-content>
+
+</ion-view>
