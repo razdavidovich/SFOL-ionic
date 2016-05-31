@@ -76,12 +76,19 @@ app.config(function ($stateProvider, $urlRouterProvider) {
                  }
              }
          })
+         .state('Servicedetails', {
+             cache: false,
+             url: "/Servicedetails",
+             templateUrl: "templates/Servicedetails.html",
+             controller: 'ServicedetailCtrl'
+         })
       .state('login', {
           cache: false,
           url: "/login",
           templateUrl: "templates/login.html",
           controller: 'LoginCtrl'
       });
+
 
 
 
@@ -298,7 +305,15 @@ app.controller('opencallCtrl', function ($scope, $state,$http,BASE_URL_VALUE,$ro
    //bind Asset by departmentId
    $scope.bindassets = function(value){
      $scope.Assetslist='';
-     $http.get(BASE_URL_VALUE+'/lists/4/'+value).success(function (data) {
+     var asseturl='';
+     if(value == 0)
+     {
+      asseturl=BASE_URL_VALUE+'/lists/4/';
+     }
+     else {
+       asseturl=BASE_URL_VALUE+'/lists/4/'+value;
+     }
+     $http.get(asseturl).success(function (data) {
          //$scope.Assetslist = $filter('filter')(data, { DepartmentID: value });
          $scope.Assetslist =data;
          }).error(function (data)
@@ -312,6 +327,10 @@ app.controller('opencallCtrl', function ($scope, $state,$http,BASE_URL_VALUE,$ro
     {
       $http.get(BASE_URL_VALUE+'/lists/3/1').success(function (data) {
           $scope.faultlist =data;
+          if($scope.faultlist.length>0)//set Select First Row
+           {
+           $scope.objcall.CommonFaultID=$scope.faultlist[0].CommonFaultID.toString();
+         } 
           }).error(function (data)
          {
           console.log('owner'+data);
@@ -336,6 +355,7 @@ app.controller('opencallCtrl', function ($scope, $state,$http,BASE_URL_VALUE,$ro
   $scope.binddepartments();
   $scope.bindfault();
   $scope.bindowner();
+  $scope.bindassets(0);
 
  //new call add to service
    $scope.addcalltoservice=function(objcall)
@@ -374,13 +394,37 @@ app.controller('opencallCtrl', function ($scope, $state,$http,BASE_URL_VALUE,$ro
 
 
  })
-app.controller('languageCtrl', function($scope, $translate) {
+ app.controller('ServicedetailCtrl',function($scope,$state,$http,BASE_URL_VALUE)
+{
+  $scope.servicedetails = {
+    IPAddress: '',
+    hosttype : ''
+  };
+  $scope.servicedetails = function (form) {
+    if(form.$valid) //validation checking
+    {
 
- 	$scope.ChangeLanguage = function(lang){
- 		$translate.use(lang);
- 	}
+      if ($scope.servicedetails.IPAddress != '0.0.0.0' &&  $scope.servicedetails.IPAddress != '255.255.255.255' &&
+            $scope.servicedetails.IPAddress.match(/\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b/))
+            {
+             localStorage.setItem("IPAddress",   $scope.servicedetails.IPAddress); //store the data from ip address
+             if($scope.servicedetails.hosttype)
+             {
+              localStorage.setItem("hosttype",   $scope.servicedetails.hosttype); //store the data from host type
+             }
+             else {
+               localStorage.setItem("hosttype",   'http'); //store the data from host type
+             }
+             BASE_URL_VALUE= localStorage.getItem("hosttype") +'://'+ localStorage.getItem("IPAddress")+'/LH_Mobile_Backend'
+             $state.go('login');
+       } else {
+           // Match attempt failed
+           $scope.message="Invalid Ip Address";
+       }
 
- });
+    }
+  }
+})
 app.controller('LoginCtrl', function ($scope, $state,$http,$ionicPopup,BASE_URL_VALUE) {
   //initalize the model in login
   $scope.authorization = {
@@ -388,10 +432,24 @@ app.controller('LoginCtrl', function ($scope, $state,$http,$ionicPopup,BASE_URL_
     password : ''
   };
 
+  //check service host in localhost
+  $scope.checkservicehost=function()
+  {
+
+    if(localStorage.getItem("IPAddress") == "undefined" || localStorage.getItem("IPAddress") == null || localStorage.getItem("IPAddress") =="")
+     {
+    //go to the calllist page
+     $state.go('Servicedetails');
+     }
+  }
+//call service hosttype
+  $scope.checkservicehost();
+
 //login event
     $scope.LogIn = function (form) {
       if(form.$valid) //validation checking
       {
+
         var url=BASE_URL_VALUE+'/login/'+$scope.authorization.username+'/'+$scope.authorization.password;
         $http.get(url).success(function (data,status) {
           if(data.length>0)
@@ -431,7 +489,9 @@ app.controller('LoginCtrl', function ($scope, $state,$http,$ionicPopup,BASE_URL_
 app.directive('myDirective', function ($filter) {
     return function (scope,element, attr) {
       // var date = new Date(scope.callist.OpenDT).toUTCString();
-       var formatdate=new Date(scope.callist.OpenDT).toISOString().split('T')[0].split('-').reverse().join('/') +' ' + new Date(scope.callist.OpenDT).toISOString().split('T')[1].split('.')[0];
+       //var formatdate=new Date(scope.callist.OpenDT).toISOString().split('T')[0].split('-').reverse().join('/') +' ' + new Date(scope.callist.OpenDT).toISOString().split('T')[1].split('.')[0];
+       var formatdate=new Date(scope.callist.OpenedDT).toLocaleDateString() + ' ' + new Date(scope.callist.OpenedDT).toLocaleTimeString();
        element.html('Opened at ' + formatdate);
+
     };
 });
