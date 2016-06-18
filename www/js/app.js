@@ -23,8 +23,9 @@ app.run(function($ionicPlatform) {
   });
 })
 //initalize the service url assign constant
-app.constant('BASE_URL_VALUE', 'http://192.168.0.137/LH_Mobile_Backend');
+//app.constant('BASE_URL_VALUE', 'http://192.168.0.137/LH_Mobile_Backend');
 
+app.constant('BASE_URL_VALUE', '');
 app.config(function ($stateProvider, $urlRouterProvider) {
 
     $stateProvider
@@ -116,7 +117,7 @@ app.controller('AppCtrl', function ($scope, $state) {
 
 app.controller('opencallCtrl', function ($scope, $state,$http,BASE_URL_VALUE,$rootScope) {
     //variable initialization
-
+    BASE_URL_VALUE= localStorage.getItem("hosttype") +'://'+ localStorage.getItem("IPAddress")+'/LH_Mobile_Backend'
      $scope.calllists='';
      $scope.UserId=window.localStorage.getItem("UserId"); //get the login userid
      if($scope.UserId ==undefined || $scope.UserId =="" || $scope.UserId == null)
@@ -179,7 +180,7 @@ app.controller('opencallCtrl', function ($scope, $state,$http,BASE_URL_VALUE,$ro
        $state.go('login');
      }
 
-
+     BASE_URL_VALUE= localStorage.getItem("hosttype") +'://'+ localStorage.getItem("IPAddress")+'/LH_Mobile_Backend'
      //bind owner
      $scope.bindowner=function()
      {
@@ -272,9 +273,10 @@ app.controller('opencallCtrl', function ($scope, $state,$http,BASE_URL_VALUE,$ro
      CommonFaultID:0,
      OwnerLoginID:0,
      Fault:'',
-     IsDowntime:false
+     IsDowntime:false,
+     LoginID:0,
    };
-
+   BASE_URL_VALUE= localStorage.getItem("hosttype") +'://'+ localStorage.getItem("IPAddress")+'/LH_Mobile_Backend'
    $scope.UserId=window.localStorage.getItem("UserId"); //get the login userid
    if($scope.UserId ==undefined || $scope.UserId =="" || $scope.UserId == null)
    {
@@ -330,7 +332,7 @@ app.controller('opencallCtrl', function ($scope, $state,$http,BASE_URL_VALUE,$ro
           if($scope.faultlist.length>0)//set Select First Row
            {
            $scope.objcall.CommonFaultID=$scope.faultlist[0].CommonFaultID.toString();
-         } 
+         }
           }).error(function (data)
          {
           console.log('owner'+data);
@@ -360,6 +362,7 @@ app.controller('opencallCtrl', function ($scope, $state,$http,BASE_URL_VALUE,$ro
  //new call add to service
    $scope.addcalltoservice=function(objcall)
   {
+    $scope.objcall.LoginID=$scope.UserId;
     var saveurl=BASE_URL_VALUE+'/faults/add/';
     $http.post(saveurl,JSON.stringify(objcall)).success(function(data,status){
       if(status==200)
@@ -400,6 +403,7 @@ app.controller('opencallCtrl', function ($scope, $state,$http,BASE_URL_VALUE,$ro
     IPAddress: '',
     hosttype : ''
   };
+
   $scope.servicedetails = function (form) {
     if(form.$valid) //validation checking
     {
@@ -408,14 +412,13 @@ app.controller('opencallCtrl', function ($scope, $state,$http,BASE_URL_VALUE,$ro
             $scope.servicedetails.IPAddress.match(/\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b/))
             {
              localStorage.setItem("IPAddress",   $scope.servicedetails.IPAddress); //store the data from ip address
-             if($scope.servicedetails.hosttype)
+             if($scope.servicedetails.hosttype == true)
              {
               localStorage.setItem("hosttype",   $scope.servicedetails.hosttype); //store the data from host type
              }
              else {
                localStorage.setItem("hosttype",   'http'); //store the data from host type
              }
-             BASE_URL_VALUE= localStorage.getItem("hosttype") +'://'+ localStorage.getItem("IPAddress")+'/LH_Mobile_Backend'
              $state.go('login');
        } else {
            // Match attempt failed
@@ -449,7 +452,7 @@ app.controller('LoginCtrl', function ($scope, $state,$http,$ionicPopup,BASE_URL_
     $scope.LogIn = function (form) {
       if(form.$valid) //validation checking
       {
-
+        BASE_URL_VALUE= localStorage.getItem("hosttype") +'://'+ localStorage.getItem("IPAddress")+'/LH_Mobile_Backend'
         var url=BASE_URL_VALUE+'/login/'+$scope.authorization.username+'/'+$scope.authorization.password;
         $http.get(url).success(function (data,status) {
           if(data.length>0)
