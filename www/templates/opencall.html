@@ -9,10 +9,10 @@
             <div class="item item-divider"> {{department}}</div>
                 <ion-item  ng-repeat="callist in calllist" ng-click="Updatecall(callist)">
                   <div class="item-icon-left">
-                    <div  ng-if="callist.IsDowntime == 1">
+                    <div  ng-if="callist.IsDowntime == 0">
                         <i class="icon ion-android-alert balanced"></i>
                     </div>
-                    <div ng-if="callist.IsDowntime == 0">
+                    <div ng-if="callist.IsDowntime == 1">
                   <i class="icon ion-android-alert assertive"></i>
                   </div>
                 <h2> {{callist.Fault}}</h2>
