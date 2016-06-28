@@ -117,7 +117,7 @@ app.controller('AppCtrl', function ($scope, $state) {
 
 app.controller('opencallCtrl', function ($scope, $state,$http,BASE_URL_VALUE,$rootScope) {
     //variable initialization
-    BASE_URL_VALUE= localStorage.getItem("hosttype") +'://'+ localStorage.getItem("IPAddress")+'/LH_Mobile_Backend'
+    BASE_URL_VALUE= localStorage.getItem("Serviceurl")+'/LH_Mobile_Backend'
      $scope.calllists='';
      $scope.UserId=window.localStorage.getItem("UserId"); //get the login userid
      if($scope.UserId ==undefined || $scope.UserId =="" || $scope.UserId == null)
@@ -180,7 +180,7 @@ app.controller('opencallCtrl', function ($scope, $state,$http,BASE_URL_VALUE,$ro
        $state.go('login');
      }
 
-     BASE_URL_VALUE= localStorage.getItem("hosttype") +'://'+ localStorage.getItem("IPAddress")+'/LH_Mobile_Backend'
+     BASE_URL_VALUE= localStorage.getItem("Serviceurl")+'/LH_Mobile_Backend'
      //bind owner
      $scope.bindowner=function()
      {
@@ -276,7 +276,7 @@ app.controller('opencallCtrl', function ($scope, $state,$http,BASE_URL_VALUE,$ro
      IsDowntime:false,
      LoginID:0,
    };
-   BASE_URL_VALUE= localStorage.getItem("hosttype") +'://'+ localStorage.getItem("IPAddress")+'/LH_Mobile_Backend'
+   BASE_URL_VALUE= localStorage.getItem("Serviceurl") +'/LH_Mobile_Backend'
    $scope.UserId=window.localStorage.getItem("UserId"); //get the login userid
    if($scope.UserId ==undefined || $scope.UserId =="" || $scope.UserId == null)
    {
@@ -404,6 +404,21 @@ app.controller('opencallCtrl', function ($scope, $state,$http,BASE_URL_VALUE,$ro
     hosttype : ''
   };
 
+  if(localStorage.getItem("IPAddress") == "undefined" || localStorage.getItem("IPAddress") == null || localStorage.getItem("IPAddress") =="")
+   {
+  //nothing
+   }
+   else {
+     //check userid  exists or not.If userid not exist go to the login page
+     if(localStorage.getItem("UserId") == "undefined" || localStorage.getItem("UserId") == null || localStorage.getItem("UserId") =="")
+     {
+           $state.go('login');
+     }
+     else {//If userid not exist go to open call page
+        $state.go('app.opencall');
+     }
+   }
+
   $scope.servicedetails = function (form) {
     if(form.$valid) //validation checking
     {
@@ -411,15 +426,44 @@ app.controller('opencallCtrl', function ($scope, $state,$http,BASE_URL_VALUE,$ro
       if ($scope.servicedetails.IPAddress != '0.0.0.0' &&  $scope.servicedetails.IPAddress != '255.255.255.255' &&
             $scope.servicedetails.IPAddress.match(/\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b/))
             {
-             localStorage.setItem("IPAddress",   $scope.servicedetails.IPAddress); //store the data from ip address
-             if($scope.servicedetails.hosttype == true)
-             {
-              localStorage.setItem("hosttype",   $scope.servicedetails.hosttype); //store the data from host type
-             }
-             else {
-               localStorage.setItem("hosttype",   'http'); //store the data from host type
-             }
-             $state.go('login');
+              var hosttype='';
+              if($scope.servicedetails.hosttype == true)
+              {
+                  hosttype=$scope.servicedetails.hosttype;
+              }
+              else {
+                hosttype ='http';
+              }
+               var checkingurl=hosttype + "://" +$scope.servicedetails.IPAddress + "/LH_Mobile_Backend/ping";
+              $http.get(checkingurl).success(function (data,status) { //checking service valid or not
+                if(status == 200)
+                {
+                  if($scope.servicedetails.hosttype == true)
+                  {
+                  localStorage.setItem("Serviceurl", $scope.servicedetails.hosttype + "://" + $scope.servicedetails.IPAddress); //store the serviceurl
+
+                  }
+                else {
+                  localStorage.setItem("Serviceurl",  "http://"+ $scope.servicedetails.IPAddress ); //store the serviceurl
+                 }
+                  $state.go('login');
+
+                 }
+               else {
+                   $scope.message="Invalid Backend Host";
+               }
+             }).error(function (data,status)
+              {
+
+                if(status == -1)
+                {
+                     $scope.message="Invalid Backend Host";
+                }
+                else {
+                   console.log('servicedetail'+data);
+                }
+
+              });
        } else {
            // Match attempt failed
            $scope.message="Invalid Ip Address";
@@ -439,7 +483,7 @@ app.controller('LoginCtrl', function ($scope, $state,$http,$ionicPopup,BASE_URL_
   $scope.checkservicehost=function()
   {
 
-    if(localStorage.getItem("IPAddress") == "undefined" || localStorage.getItem("IPAddress") == null || localStorage.getItem("IPAddress") =="")
+    if(localStorage.getItem("Serviceurl") == "undefined" || localStorage.getItem("Serviceurl") == null || localStorage.getItem("Serviceurl") =="")
      {
     //go to the calllist page
      $state.go('Servicedetails');
@@ -452,7 +496,8 @@ app.controller('LoginCtrl', function ($scope, $state,$http,$ionicPopup,BASE_URL_
     $scope.LogIn = function (form) {
       if(form.$valid) //validation checking
       {
-        BASE_URL_VALUE= localStorage.getItem("hosttype") +'://'+ localStorage.getItem("IPAddress")+'/LH_Mobile_Backend'
+
+        BASE_URL_VALUE= localStorage.getItem("Serviceurl") +'/LH_Mobile_Backend'
         var url=BASE_URL_VALUE+'/login/'+$scope.authorization.username+'/'+$scope.authorization.password;
         $http.get(url).success(function (data,status) {
           if(data.length>0)
