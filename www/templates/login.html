@@ -9,11 +9,9 @@
               </div>
        </div>
        </div>
-
       <form name="authorizationForm" novalidate="" ng-submit="LogIn(authorizationForm)">
         <label class="error" style="color:#B83E2C;">{{message}}</label>
         <div class="padding">
-
           <label class="item item-input" ng-class="{ 'has-errors' : authorizationForm.username.$invalid  && authorizationForm.$submitted,
           'no-errors' : authorizationForm.username.$valid && authorizationForm.$submitted}">
             <span class="input-label">SFOL User name</span>
@@ -39,6 +37,7 @@
           </div>
 
         </div>
+
           <div class="padding">
         <button class="button button-full button-positive" type="submit">
           Sign In
