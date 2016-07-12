@@ -5,11 +5,11 @@
 <div class="padding">
 
 <label class="item item-input">
-   <textarea placeholder="Backend host*" ></textarea>
+   <input type="text" placeholder="Backend Host*" ng-model="objsettings.host" id="txthost" />
  </label>
 </div>
 <div class="padding">
-    <button nav-clear class="button button-block button-positive">
+    <button nav-clear class="button button-block button-positive" ng-click="SaveSettings(objsettings)">
         Save
     </button>
 

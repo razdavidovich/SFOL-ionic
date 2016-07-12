@@ -114,11 +114,58 @@ app.config(function ($stateProvider, $urlRouterProvider) {
 app.controller('settingsCtrl', function ($scope, $state,$http,BASE_URL_VALUE,$rootScope) {
   //variable initialization
    BASE_URL_VALUE= localStorage.getItem("Serviceurl")+'/LH_Mobile_Backend'
+   $scope.objsettings={
+     host:''
+   }
 
    $scope.UserId=window.localStorage.getItem("UserId"); //get the login userid
    if($scope.UserId ==undefined || $scope.UserId =="" || $scope.UserId == null)
    {
      $state.go('login');
+   }
+
+   $scope.SaveSettings=function(objsettings)
+   {
+
+     if($scope.objsettings.host == undefined || $scope.objsettings.host == "" ||$scope.objsettings.host == null)
+     {
+       $scope.settingsmessage ="Enter Backend Host";
+       return;
+     }
+     else {
+       var checkingurl=window.localStorage.getItem("hosttype") + "://" +$scope.objsettings.host + "/LH_Mobile_Backend/ping";
+      $http.get(checkingurl).success(function (data,status) { //checking service valid or not
+        if(status == 200)
+        {
+          localStorage.setItem("Serviceurl", window.localStorage.getItem("hosttype")+ "://"+ $scope.objsettings.host); //store the serviceurl
+          $scope.settingsmessage="Backend Host Changed Successfully";
+          $scope.objsettings={
+            host:''
+          }
+         }
+       else {
+           $scope.settingsmessage="Invalid Backend Host.";
+           $scope.objsettings={
+             host:''
+           }
+       }
+     }).error(function (data,status)
+      {
+
+        if(status == -1)
+        {
+             $scope.settingsmessage="Invalid Backend Host";
+             $scope.objsettings={
+               host:''
+             }
+        }
+        else {
+           console.log('servicedetail'+data);
+        }
+
+      });
+
+     }
    }
 
 })
@@ -488,10 +535,11 @@ app.controller('opencallCtrl', function ($scope, $state,$http,BASE_URL_VALUE,$ro
                   if($scope.servicedetails.hosttype == true)
                   {
                   localStorage.setItem("Serviceurl", $scope.servicedetails.hosttype + "://" + $scope.servicedetails.IPAddress); //store the serviceurl
-
+                  localStorage.setItem("hosttype",$scope.servicedetails.hosttype);
                   }
                 else {
                   localStorage.setItem("Serviceurl",  "http://"+ $scope.servicedetails.IPAddress ); //store the serviceurl
+                  localStorage.setItem("hosttype","http");
                  }
                   $state.go('login');
 
