@@ -46,6 +46,16 @@ app.config(function ($stateProvider, $urlRouterProvider) {
           },
 
       })
+      .state('app.settings', {
+          url: "/settings",
+          views: {
+              'menuContent': {
+                  templateUrl: "templates/settings.html",
+                  controller: 'settingsCtrl'
+              }
+          },
+
+      })
          .state('app.signout', {
              url: "/signout",
              views: {
@@ -101,15 +111,33 @@ app.config(function ($stateProvider, $urlRouterProvider) {
 
 
 
+app.controller('settingsCtrl', function ($scope, $state,$http,BASE_URL_VALUE,$rootScope) {
+  //variable initialization
+   BASE_URL_VALUE= localStorage.getItem("Serviceurl")+'/LH_Mobile_Backend'
+
+   $scope.UserId=window.localStorage.getItem("UserId"); //get the login userid
+   if($scope.UserId ==undefined || $scope.UserId =="" || $scope.UserId == null)
+   {
+     $state.go('login');
+   }
+
+})
+
 app.controller('AppCtrl', function ($scope, $state) {
     $scope.Pageredirect = function (value) {
 
         if (value == "logout") {
-            localStorage.clear();
+
+            localStorage.removeItem("UserId");
+
             $state.go('login');
         }
         else if (value == 'call') {
             $state.go('app.opencall');
+        }
+        else if(value == 'settings')
+        {
+            $state.go('app.settings');
         }
 
     }
@@ -362,6 +390,27 @@ app.controller('opencallCtrl', function ($scope, $state,$http,BASE_URL_VALUE,$ro
  //new call add to service
    $scope.addcalltoservice=function(objcall)
   {
+
+    if($scope.objcall.AssetID == null || $scope.objcall.AssetID == "" || $scope.objcall.AssetID == undefined ||$scope.objcall.AssetID == 0 )
+    {
+      $scope.newcallmessage="Select Asset";
+      return;
+    }
+    if($scope.objcall.CommonFaultID == null || $scope.objcall.CommonFaultID == "" || $scope.objcall.CommonFaultID == undefined ||$scope.objcall.CommonFaultID == 0)
+    {
+      $scope.newcallmessage="Select Asset";
+      return;
+    }
+    if($scope.objcall.OwnerLoginID == null || $scope.objcall.OwnerLoginID == "" || $scope.objcall.OwnerLoginID == undefined ||$scope.objcall.OwnerLoginID == 0)
+    {
+      $scope.newcallmessage="Select Owner";
+      return;
+    }
+    if($scope.objcall.Fault == null || $scope.objcall.Fault == "" || $scope.objcall.Fault == undefined)
+    {
+      $scope.newcallmessage="Enter Fault Name";
+      return;
+    }
     $scope.objcall.LoginID=$scope.UserId;
     var saveurl=BASE_URL_VALUE+'/faults/add/';
     $http.post(saveurl,JSON.stringify(objcall)).success(function(data,status){
@@ -404,11 +453,12 @@ app.controller('opencallCtrl', function ($scope, $state,$http,BASE_URL_VALUE,$ro
     hosttype : ''
   };
 
-  if(localStorage.getItem("IPAddress") == "undefined" || localStorage.getItem("IPAddress") == null || localStorage.getItem("IPAddress") =="")
+  if(localStorage.getItem("Serviceurl") == "undefined" || localStorage.getItem("Serviceurl") == null || localStorage.getItem("Serviceurl") =="")
    {
   //nothing
    }
    else {
+
      //check userid  exists or not.If userid not exist go to the login page
      if(localStorage.getItem("UserId") == "undefined" || localStorage.getItem("UserId") == null || localStorage.getItem("UserId") =="")
      {
@@ -423,9 +473,6 @@ app.controller('opencallCtrl', function ($scope, $state,$http,BASE_URL_VALUE,$ro
     if(form.$valid) //validation checking
     {
 
-      if ($scope.servicedetails.IPAddress != '0.0.0.0' &&  $scope.servicedetails.IPAddress != '255.255.255.255' &&
-            $scope.servicedetails.IPAddress.match(/\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b/))
-            {
               var hosttype='';
               if($scope.servicedetails.hosttype == true)
               {
@@ -464,10 +511,7 @@ app.controller('opencallCtrl', function ($scope, $state,$http,BASE_URL_VALUE,$ro
                 }
 
               });
-       } else {
-           // Match attempt failed
-           $scope.message="Invalid Ip Address";
-       }
+
 
     }
   }
@@ -488,6 +532,15 @@ app.controller('LoginCtrl', function ($scope, $state,$http,$ionicPopup,BASE_URL_
     //go to the calllist page
      $state.go('Servicedetails');
      }
+     else {
+        if(localStorage.getItem("UserId") == "undefined" || localStorage.getItem("UserId") == null || localStorage.getItem("UserId") =="")
+        { }
+        else {
+          //go to the login page
+           $state.go('app.opencall');
+        }
+     }
+
   }
 //call service hosttype
   $scope.checkservicehost();

@@ -1,7 +1,7 @@
 ﻿<ion-view title="New Call">
 
     <ion-content class="has-header">
-
+  <label class="error" style="color:#B83E2C;">{{newcallmessage}}</label>
       <div class="padding">
 
 <label class="item item-input item-select">
@@ -20,7 +20,7 @@ Department
 <div class="input-label">
 Asset*
 </div>
-<select ng-model="objcall.AssetID">
+<select ng-model="objcall.AssetID" >
 <option ng-repeat="asset in Assetslist" value="{{asset.AssetID}}">{{asset.Asset}}</option>
 </select>
 </label>
